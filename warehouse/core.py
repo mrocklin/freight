@@ -22,8 +22,8 @@ class Warehouse(MutableMapping):
         self.data = data if data is not None else dict()
         self.redis_db = redis_db if redis_db is not None else Redis()
         self.local_server = ComputeNode(host=host, port=port,
-                                        functions={'get': self.data.get,
-                                                   'delete': self._delete})
+                                    functions={'get': self.data.get,
+                                               'delete': self.data.__delitem__})
         for key in self.data:
             self.redis_db.sadd(key, self.local_server.url)
 
@@ -63,9 +63,6 @@ class Warehouse(MutableMapping):
 
     def __setitem__(self, key, value):
         return self.set(key, value)
-
-    def _delete(self, key):
-        del self.data[key]
 
     def __delitem__(self, key):
         if key in self.data:
