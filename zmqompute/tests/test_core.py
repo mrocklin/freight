@@ -1,9 +1,7 @@
-from core import *
-import multiprocessing
-import threading
+from zmqompute import ComputeNode
 from contextlib import contextmanager
-import time
 from pickle import dumps, loads
+import zmq
 
 port = 5455
 context = zmq.Context()
