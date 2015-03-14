@@ -24,7 +24,7 @@ class Warehouse(MutableMapping):
         self.local_server = ComputeNode(host=host, port=port,
                                         functions={'get': self.data.get,
                                                    'delete': self._delete})
-        for key in data:
+        for key in self.data:
             self.redis_db.sadd(key, self.local_server.url)
 
     def __del__(self):
