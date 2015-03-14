@@ -1,10 +1,10 @@
-Warehouse
-=========
+Freight
+=======
 
 A distributed collection of dictionaries (or other Mappings) intended to hold
 and coordinate distributed storage of large blobs (like NumPy arrays.)
 
-Warehouse keeps key location information centralized in a Redis server but uses
+Freight keeps key location information centralized in a Redis server but uses
 point-to-point communication to move data between worker nodes.  This is
 useful when you have a small number of keys that associate to large values.
 
@@ -30,7 +30,7 @@ In [1]: import redis
 
 In [2]: r = redis.Redis()
 
-In [3]: from warehouse import Warehouse
+In [3]: from freight import Warehouse
 
 In [4]: A = Warehouse(redis_db=r, host='localhost', port=5001)
 
@@ -63,9 +63,22 @@ have to find something new.  Suggestions welcome, particularly if they are
 aligned with the "place to put things" theme of shelve/chest and the idea of
 logistics and data transfer.
 
+I've renamed this project to `freight`.
+
 
 Why?
 ----
 
 I built this mostly to learn about Redis and ZeroMQ.  This is a Saturday
 morning project.  Please don't expect anything.
+
+At some point I might use this for distributed
+[`dask`](http://dask.pydata.org/) workloads.
+
+
+What doesn't work
+-----------------
+
+Many things!  But mostly transactional security.  I wouldn't use thit to run a
+bank or power a government.  In pathological cases you may silently get wrong
+answers.
