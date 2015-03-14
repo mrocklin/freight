@@ -1,10 +1,29 @@
 Warehouse
 =========
 
-A distributed collection of dictionaries (or other Mappings)
+A distributed collection of dictionaries (or other Mappings) intended to hold
+coordinate distributed storage of large blobs (like NumPy arrays.)
+
+Warehouse keeps key location information centralized in a Redis server but uses
+point-to-point communication to move data between worker nodes.  This is
+useful when you have a small number of keys that associate to large values.
+
+A single warehouse is a hosted dictionary with links to other warehouses.  It
+combines the following fields:
+
+* `data`         - a local MutableMapping
+* `local_server` - a local ComputeNode serving data from self.data via `0mq`
+* `redis_db`     - a connection to a Redis instance mapping keys to urls of
+                   Warehouses that hold values of those keys
+
+Several warehouses act in concert to provide a distributed bulk key-value
+storage solution.
+
 
 Example
 -------
+
+    $ redis-server
 
 ```python
 In [1]: import redis
