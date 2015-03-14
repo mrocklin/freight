@@ -113,3 +113,6 @@ class ComputeNode(object):
         sock.send(self.dumps(('close',)))
         self.thread.join()
         self.server.close()
+
+    def __del__(self):
+        self.stop()

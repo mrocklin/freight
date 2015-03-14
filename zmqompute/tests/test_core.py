@@ -40,3 +40,10 @@ def test_inc_dec():
         assert loads(socket.recv()) == None
 
         assert node._stop
+
+
+def test_cleanup_on_del():
+    port = 5466
+    with incdec_at(port) as node:
+        node.__del__()
+        assert node._stop
