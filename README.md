@@ -12,7 +12,7 @@ A single warehouse is a hosted dictionary with links to other warehouses.  It
 combines the following fields:
 
 * `data`         - a local MutableMapping
-* `local_server` - a local ComputeNode serving data from self.data via `0mq`
+* `local_server` - a local ComputeNode serving data from self.data via ZeroMQ
 * `redis_db`     - a connection to a Redis instance mapping keys to urls of
                    Warehouses that hold values of those keys
 
@@ -49,3 +49,23 @@ Out[9]: {}
 In [10]: B['one']
 Out[10]: 1
 ```
+
+Name
+----
+
+The name was originally a play on [`chest`](http://github.com/mrocklin/chest)
+another MutableMapping project.  Warehouses are where lots of chests live.
+They're also part of a distribution network.
+
+Now that I've spent more than five minutes thinking about it though I find
+that this name conflicts with a Python Packaging Authority project, so I'll
+have to find something new.  Suggestions welcome, particularly if they are
+aligned with the "place to put things" theme of shelve/chest and the idea of
+logistics and data transfer.
+
+
+Why?
+----
+
+I built this mostly to learn about Redis and ZeroMQ.  This is a Saturday
+morning project.  Please don't expect anything.
