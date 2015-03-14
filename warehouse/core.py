@@ -46,6 +46,7 @@ class Warehouse(MutableMapping):
             socket.connect(other)
             socket.send(self.local_server.dumps(('get', key)))
             payload = self.local_server.loads(socket.recv())
+            self.data[key] = payload  # store locally
             return payload
 
     def __getitem__(self, key):

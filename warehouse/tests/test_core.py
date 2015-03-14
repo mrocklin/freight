@@ -1,4 +1,4 @@
-from shipping import Warehouse
+from warehouse import Warehouse
 
 import redis
 
@@ -28,16 +28,19 @@ def test_core():
             assert r.smembers('three') == set([A.url, B.url])
             assert A['one'] == 1
             assert B['two'] == 2
+
+            assert 'two' not in A.data
             assert A['two'] == 2
             assert B['one'] == 1
 
             assert 'one' in A
-            assert 'two' not in A.data
             assert 'two' in A
 
             assert 'four' not in A
             A['four'] = 4
+            assert 'four' not in B.data
             assert B['four'] == 4
+            assert 'four' in B.data
 
             del B['four']
             assert 'four' not in A
