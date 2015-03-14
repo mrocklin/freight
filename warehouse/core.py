@@ -30,10 +30,6 @@ class Warehouse(MutableMapping):
     def __del__(self):
         del self.local_server
 
-    @property
-    def url(self):
-        return self.local_server.url
-
     def get(self, key):
         try:
             return self.data[key]

@@ -24,8 +24,9 @@ def test_core():
         B = Warehouse(data=b, redis_db=r, port=5557)
 
         try:
-            assert r.smembers('one') == set([A.url])
-            assert r.smembers('three') == set([A.url, B.url])
+            assert r.smembers('one') == set([A.local_server.url])
+            assert r.smembers('three') == set([A.local_server.url,
+                                               B.local_server.url])
             assert A['one'] == 1
             assert B['two'] == 2
 
