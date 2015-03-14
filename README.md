@@ -2,7 +2,7 @@ Warehouse
 =========
 
 A distributed collection of dictionaries (or other Mappings) intended to hold
-coordinate distributed storage of large blobs (like NumPy arrays.)
+and coordinate distributed storage of large blobs (like NumPy arrays.)
 
 Warehouse keeps key location information centralized in a Redis server but uses
 point-to-point communication to move data between worker nodes.  This is
