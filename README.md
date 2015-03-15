@@ -53,6 +53,36 @@ In [11]: B.data
 Out[11]: {'one': 1}
 ```
 
+How does it work?
+-----------------
+
+When we add a key-value pair to a Warehouse it tells the Redis server
+
+```python
+>>> A['one'] = 1
+```
+
+    A: Hey Redis!  tcp://localhost:5001 has key 'one'
+
+When we get a key from a Warehouse we check locally
+
+```python
+>>> A['one']   # No communication necessary, A has `one` locally
+1
+```
+
+If it's not there then we ask Redis who has it and initiate a transfer
+
+```python
+>>> B['one']   # Whoops!  Don't have this locally, Need to figure out who does
+```
+
+    B:  Hey Redis!  Who has 'one'?
+    Redis:  tcp://localhost:5001 has 'one'
+    B:  Hey A (aka tcp://localhost:5001)!  Send me the value for 'one'!
+    A:  Sure!
+
+
 Name
 ----
 
