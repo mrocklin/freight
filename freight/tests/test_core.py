@@ -48,6 +48,15 @@ def test_core():
 
             assert set(A) == set(['one', 'two', 'three'])
             assert len(A) == len(B) == 3
+
+            url = B.local_server.url
+            assert r.sismember('three', url)
+            del B
+            import gc; gc.collect()
+            assert not r.sismember('three', url)
         finally:
             A.local_server.stop()
-            B.local_server.stop()
+            try:
+                B.local_server.stop()
+            except:
+                pass

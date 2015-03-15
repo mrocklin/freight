@@ -24,11 +24,19 @@ class Warehouse(MutableMapping):
         self.local_server = ComputeNode(host=host, port=port,
                                     functions={'get': self.data.get,
                                                'delete': self.data.__delitem__})
+        pipe = self.redis_db.pipeline()
         for key in self.data:
-            self.redis_db.sadd(key, self.local_server.url)
+            pipe.sadd(key, self.local_server.url)
+        pipe.execute()
 
     def __del__(self):
-        del self.local_server
+        pipe = self.redis_db.pipeline(transaction=False)
+        url = self.local_server.url
+        for key in self.data:
+            pipe.srem(key, url)
+        pipe.execute()
+
+        self.local_server.stop()
 
     def get(self, key):
         try:
