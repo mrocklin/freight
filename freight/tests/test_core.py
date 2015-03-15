@@ -11,8 +11,7 @@ def redis_db(port=6379):
     try:
         yield r
     finally:
-        for key in r.keys():
-            del r[key]
+        r.flushall()
 
 
 def test_core():

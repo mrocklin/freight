@@ -24,7 +24,7 @@ class Warehouse(MutableMapping):
         self.local_server = ComputeNode(host=host, port=port,
                                     functions={'get': self.data.get,
                                                'delete': self.data.__delitem__})
-        pipe = self.redis_db.pipeline()
+        pipe = self.redis_db.pipeline(transaction=False)
         for key in self.data:
             pipe.sadd(key, self.local_server.url)
         pipe.execute()
@@ -38,20 +38,23 @@ class Warehouse(MutableMapping):
 
         self.local_server.stop()
 
-    def get(self, key):
+    def get(self, key, store_locally_on_remote_get=True):
         try:
             return self.data[key]
         except KeyError:
-            others = self.redis_db.smembers(key)
-            if not others:
-                raise KeyError("Key not found")
-            other = next(iter(others))
-            socket = context.socket(zmq.REQ)
-            socket.connect(other)
-            socket.send(self.local_server.dumps(('get', key)))
-            payload = self.local_server.loads(socket.recv())
+            pass
+        others = self.redis_db.smembers(key)
+        if not others:
+            raise KeyError("Key not found")
+        other = next(iter(others))
+        socket = context.socket(zmq.REQ)
+        socket.connect(other)
+        socket.send(self.local_server.dumps(('get', key)))
+        payload = self.local_server.loads(socket.recv())
+        if store_locally_on_remote_get:
             self.data[key] = payload  # store locally
-            return payload
+            self.redis_db.sadd(key, self.local_server.url)
+        return payload
 
     def __getitem__(self, key):
         return self.get(key)
@@ -82,6 +85,8 @@ class Warehouse(MutableMapping):
         # TODO: This should be some kind of mixed transaction
         socks = []
         for other in self.redis_db.smembers(key):
+            if other == self.local_server.url:
+                continue
             socket = context.socket(zmq.REQ)
             socket.connect(other)
             socket.send(self.local_server.dumps(('delete', key)))
