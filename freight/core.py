@@ -63,7 +63,14 @@ class Warehouse(MutableMapping):
         if key in self:
             raise KeyError("Duplicate key found")
         self.data[key] = value
-        self.redis_db.sadd(key, self.local_server.url)
+
+        transaction = self.redis_db.pipeline(transaction=True)
+        transaction.scard(key)
+        transaction.sadd(key, self.local_server.url)
+        result = transaction.execute()
+        if result[0] != 0:
+            raise KeyError("Duplicate key %s found\nRace condition detected"
+                           % str(key))
 
     def __setitem__(self, key, value):
         return self.set(key, value)
@@ -72,6 +79,7 @@ class Warehouse(MutableMapping):
         if key in self.data:
             del self.data[key]
 
+        # TODO: This should be some kind of mixed transaction
         socks = []
         for other in self.redis_db.smembers(key):
             socket = context.socket(zmq.REQ)
