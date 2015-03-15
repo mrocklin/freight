@@ -14,48 +14,73 @@ def redis_db(port=6379):
         r.flushall()
 
 
-def test_core():
+@contextmanager
+def two_node(a=None, b=None):
     with redis_db() as r:
-        a = {'one': 1, 'three': 3}
-        A = Warehouse(data=a, redis_db=r, port=5556)
+        if a is None:
+            a = dict()
+        if b is None:
+            b = dict()
 
-        b = {'two': 2, 'three': 3}
+        A = Warehouse(data=a, redis_db=r, port=5556)
         B = Warehouse(data=b, redis_db=r, port=5557)
 
         try:
-            assert r.smembers('one') == set([A.local_server.url])
-            assert r.smembers('three') == set([A.local_server.url,
-                                               B.local_server.url])
-            assert A['one'] == 1
-            assert B['two'] == 2
-
-            assert 'two' not in A.data
-            assert A['two'] == 2
-            assert B['one'] == 1
-
-            assert 'one' in A
-            assert 'two' in A
-
-            assert 'four' not in A
-            A['four'] = 4
-            assert 'four' not in B.data
-            assert B['four'] == 4
-            assert 'four' in B.data
-
-            del B['four']
-            assert 'four' not in A
-
-            assert set(A) == set(['one', 'two', 'three'])
-            assert len(A) == len(B) == 3
-
-            url = B.local_server.url
-            assert r.sismember('three', url)
-            del B
-            import gc; gc.collect()
-            assert not r.sismember('three', url)
+            yield (r, A, B)
         finally:
-            A.local_server.stop()
+            try:
+                A.local_server.stop()
+            except:
+                pass
             try:
                 B.local_server.stop()
             except:
                 pass
+
+
+def test_core():
+    with two_node({'one': 1, 'three': 3}, {'two': 2, 'three': 3}) as (r, A, B):
+        assert r.smembers('one') == set([A.local_server.url])
+        assert r.smembers('three') == set([A.local_server.url,
+                                           B.local_server.url])
+        assert A['one'] == 1
+        assert B['two'] == 2
+
+        assert 'two' not in A.data
+        assert A['two'] == 2
+        assert B['one'] == 1
+
+def test_contains():
+    with two_node({'one': 1, 'three': 3}, {'two': 2, 'three': 3}) as (r, A, B):
+        assert 'one' in A
+        assert 'two' in A
+        assert 'one' in B
+        assert 'two' in B
+
+
+def test_transfer():
+    with two_node({'one': 1, 'three': 3}, {'two': 2, 'three': 3}) as (r, A, B):
+        A['four'] = 4
+        assert 'four' not in B.data
+        assert B['four'] == 4
+        assert 'four' in B.data
+
+
+def test_delitem():
+    with two_node({'one': 1, 'three': 3}, {'two': 2, 'three': 3}) as (r, A, B):
+        del B['four']
+        assert 'four' not in A
+
+
+def test_iter_len():
+    with two_node({'one': 1, 'three': 3}, {'two': 2, 'three': 3}) as (r, A, B):
+        assert set(A) == set(['one', 'two', 'three'])
+        assert len(A) == len(B) == 3
+
+
+def test_del():
+    with two_node({'one': 1, 'three': 3}, {'two': 2, 'three': 3}) as (r, A, B):
+        url = B.local_server.url
+        assert r.sismember('three', url)
+        B.__del__()
+        assert not r.sismember('three', url)
