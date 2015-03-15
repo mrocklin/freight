@@ -48,6 +48,9 @@ Out[9]: {}
 
 In [10]: B['one']
 Out[10]: 1
+
+In [11]: B.data
+Out[11]: {'one': 1}
 ```
 
 Name
@@ -63,7 +66,8 @@ have to find something new.  Suggestions welcome, particularly if they are
 aligned with the "place to put things" theme of shelve/chest and the idea of
 logistics and data transfer.
 
-I've renamed this project to `freight`.
+I've renamed this project to `freight`.  Oops. that name is also taken.
+Suggestions welcome.
 
 
 Why?
@@ -79,6 +83,6 @@ At some point I might use this for distributed
 What doesn't work
 -----------------
 
-Many things!  But mostly transactional security.  I wouldn't use thit to run a
-bank or power a government.  In pathological cases you may silently get wrong
-answers.
+Probably many things!  This was a morning project, and not something you should
+use hit to run a bank or power a major government.  I know that deletion has
+race conditions.  I've tried to be safe about other things though.
