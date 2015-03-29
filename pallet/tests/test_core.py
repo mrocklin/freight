@@ -1,4 +1,4 @@
-from freight import Warehouse
+from pallet import Warehouse
 
 import redis
 
